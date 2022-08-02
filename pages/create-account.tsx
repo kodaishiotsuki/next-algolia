@@ -1,15 +1,16 @@
 import classNames from "classnames";
+import { useRouter } from "next/router";
 import React from "react";
 import { useForm } from "react-hook-form";
 import Button from "../components/button";
-
-type User = {
-  name: string;
-  nickname: string;
-  profile: string;
-};
+import { useAuth } from "../context/auth";
+import { User } from "../types/user";
 
 const CreateAccount = () => {
+  //context/auth
+  const { isLoading, isLoggedIn } = useAuth();
+  const router = useRouter();
+
   //useFormに色々入っている
   const {
     register,
@@ -21,6 +22,16 @@ const CreateAccount = () => {
   const submit = (data: User) => {
     console.log(data);
   };
+
+  if (isLoading) {
+    return true;
+  }
+
+  //ログインしていない場合はログインページへ遷移
+  if (!isLoggedIn) {
+    router.push("/login");
+    return null; //強制終了
+  }
 
   return (
     <div className="container">
