@@ -10,7 +10,11 @@ type User = {
 
 const CreateAccount = () => {
   //useFormに色々入っている
-  const { register, handleSubmit } = useForm<User>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<User>();
 
   const submit = (data: User) => {
     console.log(data);
@@ -38,6 +42,9 @@ const CreateAccount = () => {
             name="name"
             id="name"
           />
+          {errors.name && (
+            <p className="text-red-500 mt-0.5">{errors?.name.message}</p>
+          )}
         </div>
 
         <div>
@@ -57,6 +64,9 @@ const CreateAccount = () => {
             name="nickname"
             id="nickname"
           />
+          {errors.nickname && (
+            <p className="text-red-500 mt-0.5">{errors?.nickname.message}</p>
+          )}
         </div>
 
         <div>
@@ -75,6 +85,9 @@ const CreateAccount = () => {
             name="profile"
             id="profile"
           />
+          {errors.profile && (
+            <p className="text-red-500 mt-0.5">{errors?.profile.message}</p>
+          )}
         </div>
 
         <Button>アカウント作成</Button>
