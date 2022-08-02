@@ -14,6 +14,7 @@ const CreateAccount = () => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<User>();
 
@@ -87,6 +88,7 @@ const CreateAccount = () => {
               "rounded border",
               errors.name ? "border-red-500" : "border-slate-300"
             )}
+            defaultValue="" //watchを使うために初期値指定
             {...register("profile", {
               required: "必須入力です",
               maxLength: {
@@ -97,6 +99,10 @@ const CreateAccount = () => {
             name="profile"
             id="profile"
           />
+          {/* 左辺がtrueなら左辺表示、falseなら右辺表示 */}
+          <p className="text-sm text-slate-400 leading-none">
+            {watch("profile")?.length || 0}/255
+          </p>
           {errors.profile && (
             <p className="text-red-500 mt-0.5">{errors?.profile.message}</p>
           )}
