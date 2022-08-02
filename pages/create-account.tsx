@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import React from "react";
 import { useForm } from "react-hook-form";
 import Button from "../components/button";
@@ -27,10 +28,14 @@ const CreateAccount = () => {
       <form onSubmit={handleSubmit(submit)} className="space-y-6">
         <div>
           <label className="block mb-0.5" htmlFor="name">
-            名前
+            名前*
           </label>
           <input
-            className="rounded border border-slate-300"
+            className={classNames(
+              "rounded border",
+              errors.name ? "border-red-500" : "border-slate-300"
+            )}
+            autoComplete="name"
             {...register("name", {
               required: "必須入力です",
               maxLength: {
@@ -49,10 +54,14 @@ const CreateAccount = () => {
 
         <div>
           <label className="block mb-0.5" htmlFor="nickname">
-            ニックネーム
+            ニックネーム*
           </label>
           <input
-            className="rounded border border-slate-300"
+            className={classNames(
+              "rounded border",
+              errors.name ? "border-red-500" : "border-slate-300"
+            )}
+            autoComplete="off"
             {...register("nickname", {
               required: "必須入力です",
               maxLength: {
@@ -71,10 +80,13 @@ const CreateAccount = () => {
 
         <div>
           <label className="block mb-0.5" htmlFor="profile">
-            プロフィール
+            プロフィール*
           </label>
           <textarea
-            className="rounded border border-slate-300"
+            className={classNames(
+              "rounded border",
+              errors.name ? "border-red-500" : "border-slate-300"
+            )}
             {...register("profile", {
               required: "必須入力です",
               maxLength: {
