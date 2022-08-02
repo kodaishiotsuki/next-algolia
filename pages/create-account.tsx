@@ -17,7 +17,7 @@ const CreateAccount = () => {
   };
 
   return (
-    <div>
+    <div className="container">
       <h1>アカウント作成</h1>
 
       <form onSubmit={handleSubmit(submit)} className="space-y-6">
