@@ -1,4 +1,4 @@
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 import {
   createContext,
   ReactNode,
@@ -7,27 +7,31 @@ import {
   useState,
 } from "react";
 import { auth } from "../firebase/client";
+import { User } from "../types/user";
 
 type ContextType = {
-  isLoggedIn: boolean;
+  //nullは空 undefinedは空かも不明
+  fbUser: FirebaseUser | null | undefined;
   isLoading: boolean;
+  user: User | null | undefined;
 };
 
 //初期値
 const AuthContext = createContext<ContextType>({
-  isLoggedIn: false,
+  fbUser: undefined,
   isLoading: true,
+  user: undefined,
 });
 
 //provider:配送エリア（実態はコンポーネント）
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [fbUser, setFbUser] = useState<FirebaseUser | null>();
   const [isLoading, setIsLoading] = useState(true);
 
   //firebaseのログイン状態を監視する
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(!!user); // user && setIsLoggedIn(true)
+    onAuthStateChanged(auth, (resultUser) => {
+      setFbUser(resultUser); // user && setIsLoggedIn(true)
       setIsLoading(false);
     });
   }, []);
@@ -35,7 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider
       value={{
-        isLoggedIn,
+        fbUser,
         isLoading,
       }}
     >
@@ -43,6 +47,5 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     </AuthContext.Provider>
   );
 };
-
 
 export const useAuth = () => useContext(AuthContext);

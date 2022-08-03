@@ -1,14 +1,16 @@
 import classNames from "classnames";
+import { doc, setDoc } from "firebase/firestore";
 import { useRouter } from "next/router";
 import React from "react";
 import { useForm } from "react-hook-form";
 import Button from "../components/button";
 import { useAuth } from "../context/auth";
+import { db } from "../firebase/client";
 import { User } from "../types/user";
 
 const CreateAccount = () => {
   //context/auth
-  const { isLoading, isLoggedIn } = useAuth();
+  const { isLoading, fbUser } = useAuth();
   const router = useRouter();
 
   //useFormに色々入っている
@@ -19,19 +21,24 @@ const CreateAccount = () => {
     formState: { errors },
   } = useForm<User>();
 
-  const submit = (data: User) => {
-    console.log(data);
-  };
-
   if (isLoading) {
-    return true;
+    return null;
   }
 
   //ログインしていない場合はログインページへ遷移
-  if (!isLoggedIn) {
+  if (!fbUser) {
     router.push("/login");
     return null; //強制終了
   }
+
+  //userコレクション作成
+  const submit = (data: User) => {
+    const ref = doc(db, `users/${fbUser.uid}`);
+    setDoc(ref, data).then(() => {
+      alert("ユーザー作成しました");
+      router.push("/");
+    });
+  };
 
   return (
     <div className="container">
