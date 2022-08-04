@@ -78,7 +78,7 @@ const CreateAccount = () => {
           <input
             className={classNames(
               "rounded border",
-              errors.name ? "border-red-500" : "border-slate-300"
+              errors.nickname ? "border-red-500" : "border-slate-300"
             )}
             autoComplete="off"
             {...register("nickname", {
@@ -104,7 +104,7 @@ const CreateAccount = () => {
           <textarea
             className={classNames(
               "rounded border",
-              errors.name ? "border-red-500" : "border-slate-300"
+              errors.profile ? "border-red-500" : "border-slate-300"
             )}
             defaultValue="" //watchを使うために初期値指定
             {...register("profile", {
