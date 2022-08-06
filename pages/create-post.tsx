@@ -84,8 +84,8 @@ const CreatePost = () => {
             {...register("body", {
               required: "必須入力です",
               maxLength: {
-                value: 50,
-                message: "最大50文字です",
+                value: 255,
+                message: "最大255文字です",
               },
             })}
             name="body"

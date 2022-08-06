@@ -18,6 +18,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase/client";
 import { User } from "../types/user";
 import useSWR from "swr/immutable";
+import Link from "next/link";
 
 const searchClient = algoliasearch(
   "DIISLEFUBA",
@@ -26,10 +27,10 @@ const searchClient = algoliasearch(
 
 const Hit: HitsProps<Post>["hitComponent"] = ({ hit }) => {
   //SWR
-  const { data:user } = useSWR<User>(
+  const { data: user } = useSWR<User>(
     hit.authorId && `users/${hit.authorId}`, //第一引数にデータの保管場所を定義
     async () => {
-      console.log("データ取得")
+      console.log("データ取得");
       const ref = doc(db, `users/${hit.authorId}`);
       const snap = await getDoc(ref); //await→この処理をするまで次に行かない
       return snap.data() as User;
@@ -38,12 +39,14 @@ const Hit: HitsProps<Post>["hitComponent"] = ({ hit }) => {
 
   return (
     <div className="rounded-md shadow p-4">
-      <h2> {hit.title}</h2>
+      <h2 className="line-clamp-2">
+        
+      </h2>
       <p className="text-slate-500">
         {format(hit.createdAt, "yyyy年MM月dd日")}
       </p>
       {/* useSWR */}
-      {user && <p>{user.name}</p>}
+      {user && <p className="truncate">{user.name}</p>}
     </div>
   );
 };
