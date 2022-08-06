@@ -1,4 +1,5 @@
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+import { doc, onSnapshot, Unsubscribe } from "firebase/firestore";
 import {
   createContext,
   ReactNode,
@@ -6,43 +7,67 @@ import {
   useEffect,
   useState,
 } from "react";
-import { auth } from "../firebase/client";
+import { auth, db } from "../firebase/client";
+import { User } from "../types/user";
 
 type ContextType = {
-  isLoggedIn: boolean;
+  //nullは空 undefinedは空かも不明
+  fbUser: FirebaseUser | null | undefined;
   isLoading: boolean;
+  user: User | null | undefined;
 };
 
 //初期値
 const AuthContext = createContext<ContextType>({
-  isLoggedIn: false,
+  fbUser: undefined,
   isLoading: true,
+  user: undefined,
 });
 
 //provider:配送エリア（実態はコンポーネント）
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<User | null>();
+  const [fbUser, setFbUser] = useState<FirebaseUser | null>();
   const [isLoading, setIsLoading] = useState(true);
 
-  //firebaseのログイン状態を監視する
+  //ユーザーデータの取得
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(!!user); // user && setIsLoggedIn(true)
-      setIsLoading(false);
+    //監視を解除する定数を定義
+    let unsubscribe: Unsubscribe;
+
+    //firebaseのログイン状態を監視する
+    onAuthStateChanged(auth, (resultUser) => {
+      //監視している人がいれば消す
+      unsubscribe?.();
+      setFbUser(resultUser);
+
+      //ログイン中
+      if (resultUser) {
+        setIsLoading(true);
+        const ref = doc(db, `users/${resultUser.uid}`);
+        onSnapshot(ref, (snap) => {
+          //ドキュメントのデータ取得
+          setUser(snap.data() as User);
+          setIsLoading(false);
+        });
+      } else {
+        setUser(null);
+        setIsLoading(false);
+      }
     });
   }, []);
 
   return (
     <AuthContext.Provider
       value={{
-        isLoggedIn,
+        fbUser,
         isLoading,
+        user,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
-
 
 export const useAuth = () => useContext(AuthContext);
