@@ -1,10 +1,13 @@
 import { format } from "date-fns";
 import { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from "next";
 import Link from "next/link";
+import { ReactElement } from "react";
+import { Layout } from "../../../components/layout";
 import { useAuth } from "../../../context/auth";
 import { adminDB } from "../../../firebase/server";
 import { useUser } from "../../../lib/user";
 import { Post } from "../../../types/post";
+import { NextPageWithLayout } from "../../_app";
 
 //firestoreにアクセス(サーバーサイドnode.jsを使用)
 export const getStaticProps: GetStaticProps<{ post: Post }> = async (
@@ -26,9 +29,9 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-const PostDetailPage = ({
-  post,
-}: InferGetStaticPropsType<typeof getStaticProps>) => {
+const PostDetailPage: NextPageWithLayout<
+  InferGetStaticPropsType<typeof getStaticProps>
+> = ({ post }) => {
   const user = useUser(post?.authorId);
   const { fbUser } = useAuth();
   const isAuthor = fbUser?.uid === post.authorId;
@@ -65,6 +68,10 @@ const PostDetailPage = ({
       )}
     </div>
   );
+};
+
+PostDetailPage.getLayout = function getLayout(page: ReactElement) {
+  return <Layout>{page}</Layout>;
 };
 
 export default PostDetailPage;
