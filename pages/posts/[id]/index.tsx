@@ -1,14 +1,9 @@
 import { format } from "date-fns";
-import { doc, getDoc } from "firebase/firestore";
-import { GetStaticProps, GetStaticPaths, InferGetStaticPropsType } from "next";
+import { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from "next";
 import Link from "next/link";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import useSWR from "swr/immutable";
-import { db } from "../../firebase/client";
-import { adminDB } from "../../firebase/server";
-import { useUser } from "../../lib/user";
-import { Post } from "../../types/post";
+import { adminDB } from "../../../firebase/server";
+import { useUser } from "../../../lib/user";
+import { Post } from "../../../types/post";
 
 //firestoreにアクセス(サーバーサイドnode.jsを使用)
 export const getStaticProps: GetStaticProps<{ post: Post }> = async (
