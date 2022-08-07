@@ -2,6 +2,7 @@ import classNames from "classnames";
 import {
   collection,
   collectionGroup,
+  deleteDoc,
   doc,
   getDoc,
   setDoc,
@@ -62,7 +63,7 @@ const PostForm = ({ isEditMode }: { isEditMode: boolean }) => {
     setDoc(ref, post).then(async () => {
       const path = `/posts/${post.id}`;
 
-      const token = await auth.currentUser?.getIdToken(true) as string;
+      const token = (await auth.currentUser?.getIdToken(true)) as string;
 
       fetch(`/api/revalidate?path=${path}`, {
         method: "POST",
@@ -78,6 +79,14 @@ const PostForm = ({ isEditMode }: { isEditMode: boolean }) => {
           console.log(e);
           alert("ページ再生成失敗");
         });
+    });
+  };
+
+  const deletePost = () => {
+    const ref = doc(db, `posts/${editTargetId}`);
+    return deleteDoc(ref).then(() => {
+      alert("記事を削除しました");
+      router.push("/");
     });
   };
 
@@ -137,6 +146,11 @@ const PostForm = ({ isEditMode }: { isEditMode: boolean }) => {
           )}
         </div>
         <Button>{isEditMode ? "更新" : "投稿"}</Button>
+
+        {/* 明示的にtype=buttonを記述(書かないとformに飛んでしまう) */}
+        <Button type="button" onClick={deletePost}>
+          削除
+        </Button>
       </form>
     </div>
   );

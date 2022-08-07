@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { GetStaticPaths, GetStaticProps, InferGetStaticPropsType } from "next";
 import Link from "next/link";
+import { useAuth } from "../../../context/auth";
 import { adminDB } from "../../../firebase/server";
 import { useUser } from "../../../lib/user";
 import { Post } from "../../../types/post";
@@ -25,15 +26,12 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-
-
-
-
 const PostDetailPage = ({
   post,
 }: InferGetStaticPropsType<typeof getStaticProps>) => {
   const user = useUser(post?.authorId);
-
+  const { fbUser } = useAuth();
+  const isAuthor = fbUser?.uid === post.authorId;
   //postがなければ何も表示しない
   if (!post) {
     return <p>記事が存在しません...</p>;
@@ -60,6 +58,11 @@ const PostDetailPage = ({
         </div>
       )}
       <p>{post.body}</p>
+      {isAuthor && (
+        <Link href={`/posts/${post.id}/edit`}>
+          <a className="text-slate-500">編集</a>
+        </Link>
+      )}
     </div>
   );
 };
