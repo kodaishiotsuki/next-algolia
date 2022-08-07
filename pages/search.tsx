@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactElement, ReactNode, useEffect, useState } from "react";
 import algoliasearch from "algoliasearch/lite";
 import {
   Configure,
@@ -19,6 +19,9 @@ import { db } from "../firebase/client";
 import { User } from "../types/user";
 import useSWR from "swr/immutable";
 import Link from "next/link";
+import { useUser } from "../lib/user";
+import { NextPageWithLayout } from "./_app";
+import { Layout } from "../components/layout";
 
 const searchClient = algoliasearch(
   "DIISLEFUBA",
@@ -27,20 +30,14 @@ const searchClient = algoliasearch(
 
 const Hit: HitsProps<Post>["hitComponent"] = ({ hit }) => {
   //SWR
-  const { data: user } = useSWR<User>(
-    hit.authorId && `users/${hit.authorId}`, //第一引数にデータの保管場所を定義
-    async () => {
-      console.log("データ取得");
-      const ref = doc(db, `users/${hit.authorId}`);
-      const snap = await getDoc(ref); //await→この処理をするまで次に行かない
-      return snap.data() as User;
-    }
-  );
+  const user = useUser(hit?.authorId);
 
   return (
     <div className="rounded-md shadow p-4">
       <h2 className="line-clamp-2">
-        
+        <Link href={`posts/${hit.id}`}>
+          <a>{hit.title}</a>
+        </Link>
       </h2>
       <p className="text-slate-500">
         {format(hit.createdAt, "yyyy年MM月dd日")}
@@ -69,7 +66,7 @@ const NoResultsBoundary = ({ children }: { children: ReactNode }) => {
   );
 };
 
-const Search = () => {
+const Search: NextPageWithLayout = () => {
   const search: SearchBoxProps["queryHook"] = (query, hook) => {
     hook(query);
   };
@@ -87,8 +84,8 @@ const Search = () => {
             root: "relative inline-block",
           }}
           submitIconComponent={() => (
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 p-2">
-              <SearchIcon className="w-5 h-5 text-slate-500" />
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 p-2 rounded-md">
+              <SearchIcon className="w-5 h-5 text-slate-500 rounded-full" />
             </div>
           )}
         />
@@ -112,6 +109,10 @@ const Search = () => {
       </InstantSearch>
     </div>
   );
+};
+
+Search.getLayout = function getLayout(page: ReactElement) {
+  return <Layout>{page}</Layout>;
 };
 
 export default Search;
