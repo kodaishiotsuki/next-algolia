@@ -1,33 +1,47 @@
 import { format } from "date-fns";
 import { doc, getDoc } from "firebase/firestore";
+import { GetStaticProps, GetStaticPaths, InferGetStaticPropsType } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr/immutable";
 import { db } from "../../firebase/client";
+import { adminDB } from "../../firebase/server";
 import { useUser } from "../../lib/user";
 import { Post } from "../../types/post";
-import { User } from "../../types/user";
 
-const PostDetailPage = () => {
-  const [post, setPost] = useState<Post>();
-  const router = useRouter();
-  const postId = router.query.id; //idは[id]と連動
+//firestoreにアクセス(サーバーサイドnode.jsを使用)
+export const getStaticProps: GetStaticProps<{ post: Post }> = async (
+  context
+) => {
+  const snap = await adminDB.doc(`posts/${context.params?.id}`).get(); //id→[id]と一致させる
+  const post = snap.data() as Post;
+
+  return {
+    props: {
+      post: post,
+    },
+  };
+};
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: [], //から配列でok
+    fallback: "blocking", //実装コストが減る
+  };
+};
+
+
+
+
+
+const PostDetailPage = ({
+  post,
+}: InferGetStaticPropsType<typeof getStaticProps>) => {
   const user = useUser(post?.authorId);
-
-  useEffect(() => {
-    if (postId) {
-      const ref = doc(db, `posts/${postId}`);
-      console.log("データ通信");
-      getDoc(ref).then((snap) => {
-        setPost(snap.data() as Post);
-      });
-    }
-  }, [postId]);
 
   //postがなければ何も表示しない
   if (!post) {
-    return null;
+    return <p>記事が存在しません...</p>;
   }
 
   return (
